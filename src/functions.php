@@ -29,12 +29,14 @@ function d($v) {
     }
 
     $cli = php_sapi_name() === 'cli';
-    header_remove('content-length');
-    $c = headers_list();
-    header_remove('content-type');
+    if (!$cli) {
+        header_remove('content-length');
+        $c = headers_list();
+        header_remove('content-type');
 
-    if (count($c) !== count(headers_list())) {
-        $cli = true;
+        if (count($c) !== count(headers_list())) {
+            $cli = true;
+        }
     }
 
     if (!$cli) {
