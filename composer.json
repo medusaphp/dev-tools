@@ -1,0 +1,19 @@
+{
+  "name": "medusa/dev-tools",
+  "authors": [
+    {
+      "name": "Pascal Schnell",
+      "email": "pascal.schnell@getmedusa.org"
+    }
+  ],
+  "description": "Helper functions for debugging",
+  "license": "MIT",
+  "require": {
+    "php": ">=7.4"
+  },
+  "autoload": {
+    "files": [
+      "src/functions.php"
+    ]
+  }
+}
