@@ -11,7 +11,7 @@ function d($v) {
 
     if (
         $trace[0]['file'] === __FILE__
-        && $trace[0]['function'] === 'd'
+        && $trace[0]['function'] === __FUNCTION__
     ) {
         $trace = $trace[1];
     } else {
