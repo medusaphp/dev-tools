@@ -156,7 +156,7 @@ function debugLog($data, string $logfileName = null) {
             $counts[$data] = 0;
         }
         $counts[$data]++;
-        $data = str_replace('>>$i++<<', $counts[$data], $data);
+        $data = str_replace('>>$i++<<', (string)$counts[$data], $data);
     }
 
     $color = "\033[31m%s\e[0m";
