@@ -91,6 +91,32 @@ function debugLog($data, string $logfileName = null) {
     static $last;
     static $requestId;
     static $counts=[];
+    static $home;
+
+    if (!$home) {
+        $home = $_SERVER['HOME'] ?? exec('echo $HOME');
+        $home = '';
+        if ($home === '') {
+
+            $server = $_SERVER['SERVER_SOFTWARE'] ?? '';
+            if (preg_match('/^PHP ?.* Development Server$/i', $server, $matches)) {
+                $root = $_SERVER['DOCUMENT_ROOT'];
+                $user = get_current_user();
+
+                if ($user === '') {
+                    $user = exec('whoami');
+                }
+                if ($user === '') {
+                    $home === $root;
+                } else {
+                    $home = preg_replace('|(/' . $user . ')/.*|', '$1', $root);
+                }
+            }
+        }
+        if ($home === '') {
+            $home === __DIR__;
+        }
+    }
 
     $colorCodes = [
         "\033[31m%s\e[0m",
@@ -116,7 +142,7 @@ function debugLog($data, string $logfileName = null) {
     }
 
     $logfileName = $logfileName ?? 'log_' . date('Y-m-d') . '.log';
-    $logFile = $_SERVER['HOME'] . DIRECTORY_SEPARATOR . 'app_debug_logs' . DIRECTORY_SEPARATOR . $logfileName;
+    $logFile = $home . DIRECTORY_SEPARATOR . 'app_debug_logs' . DIRECTORY_SEPARATOR . $logfileName;
     $dir = dirname($logFile);
 
     if (!is_dir($dir)) {
