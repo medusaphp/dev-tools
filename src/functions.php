@@ -95,7 +95,6 @@ function debugLog($data, string $logfileName = null) {
 
     if (!$home) {
         $home = $_SERVER['HOME'] ?? exec('echo $HOME');
-        $home = '';
         if ($home === '') {
 
             $server = $_SERVER['SERVER_SOFTWARE'] ?? '';
@@ -107,14 +106,14 @@ function debugLog($data, string $logfileName = null) {
                     $user = exec('whoami');
                 }
                 if ($user === '') {
-                    $home === $root;
+                    $home = $root;
                 } else {
                     $home = preg_replace('|(/' . $user . ')/.*|', '$1', $root);
                 }
             }
         }
         if ($home === '') {
-            $home === __DIR__;
+            $home = __DIR__;
         }
     }
 
