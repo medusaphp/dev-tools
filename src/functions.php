@@ -1,4 +1,4 @@
-<?php declare(strict_types =1);
+<?php declare(strict_types = 1);
 namespace Medusa\DevTools;
 
 function dd($v, int $exitCode = 0) {
@@ -7,13 +7,26 @@ function dd($v, int $exitCode = 0) {
 }
 
 function d($v) {
-    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+    if(!headers_sent()
+        &&  ($_SERVER['HTTP_X_MEDUSA_DEBUG_CHALLENGE'] ?? false)
+    ){
+        header('X-Medusa-Debug-Challenge: ' . $_SERVER['HTTP_X_MEDUSA_DEBUG_CHALLENGE']);
+    }
+
+    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
 
     if (
         $trace[0]['file'] === __FILE__
         && $trace[0]['function'] === __FUNCTION__
     ) {
-        $trace = $trace[1];
+        if (
+            defined('__MEDUSA_DEV_ALIAS_FILE__')
+            && __MEDUSA_DEV_ALIAS_FILE__ === $trace[1]['file']
+        ) {
+            $trace = $trace[2];
+        } else {
+            $trace = $trace[1];
+        }
     } else {
         $trace = $trace[0];
     }
@@ -90,7 +103,7 @@ function debugLog($data, string $logfileName = null) {
     static $runtime = 0;
     static $last;
     static $requestId;
-    static $counts=[];
+    static $counts = [];
     static $home;
 
     if (!$home) {
@@ -132,7 +145,8 @@ function debugLog($data, string $logfileName = null) {
         "\033[96m%s\e[0m",
     ];
 
-    $requestId ??= sprintf($colorCodes[array_rand($colorCodes)], substr(md5(microtime(true). ($_SERVER['REQUEST_URI'] ?? '')), 0, 8));
+    $challenge = $_SERVER['HTTP_X_MEDUSA_DEBUG_CHALLENGE'] ?? false;
+    $requestId ??= sprintf($colorCodes[array_rand($colorCodes)], substr(md5(microtime(true) . ($_SERVER['REQUEST_URI'] ?? '')), 0, 8));
 
     $start = 1000 * microtime(true);
 
@@ -159,7 +173,13 @@ function debugLog($data, string $logfileName = null) {
     }
 
     $color = "\033[31m%s\e[0m";
-    $data = sprintf($color, $requestId) . ' -> [' . number_format($runtime, 6, ',', '.') . 'ms +' . number_format($start - $last, 6, ',', '.') . 'ms: ] ' . $data;
+    $data = sprintf($color, $requestId)
+        . ($challenge ? (' debug challenge: ' . $challenge ) : '')
+        . ' -> [' . number_format($runtime, 6, ',', '.')
+        . 'ms +' . number_format($start - $last, 6, ',', '.') . 'ms: ] '
+        . $data;
     $last = $start;
+
+    dd($data);
     file_put_contents($logFile, $data . PHP_EOL, FILE_APPEND);
 }
