@@ -180,6 +180,5 @@ function debugLog($data, string $logfileName = null) {
         . $data;
     $last = $start;
 
-    dd($data);
     file_put_contents($logFile, $data . PHP_EOL, FILE_APPEND);
 }
